@@ -122,7 +122,7 @@ export default function SocialPage() {
                 { id: "feed", label: "Feed", icon: "📱" },
                 { id: "friends", label: "Amis", icon: "👥" },
                 { id: "leaderboard", label: "Classement", icon: "🏆" },
-              ].map((tab) => (
+              ].map((tab: { id: string; label: string; icon: string }) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -160,7 +160,7 @@ export default function SocialPage() {
                 <form onSubmit={handleAddFriend} className="space-y-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Email ou nom d'utilisateur
+                      Email ou nom d&apos;utilisateur
                     </label>
                     <input
                       type="text"
@@ -201,10 +201,10 @@ export default function SocialPage() {
             {pendingRequests && pendingRequests.length > 0 && (
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                 <h3 className="mb-2 font-medium text-blue-900">
-                  Demandes d'amitié en attente
+                  Demandes d&apos;amitié en attente
                 </h3>
                 <div className="space-y-2">
-                  {pendingRequests.map((request) => (
+                  {pendingRequests.map((request: any) => (
                     <div
                       key={request.id}
                       className="flex items-center justify-between rounded-lg bg-white p-3"
@@ -249,7 +249,7 @@ export default function SocialPage() {
             {/* Feed Posts */}
             {feed && feed.length > 0 ? (
               <div className="space-y-6">
-                {feed.map((post) => (
+                {feed.map((post: any) => (
                   <div key={post.id} className="rounded-lg bg-white shadow">
                     <div className="p-6">
                       <div className="flex items-start space-x-4">
@@ -343,7 +343,7 @@ export default function SocialPage() {
             <div className="p-6">
               {friends && friends.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {friends.map((friendship) => (
+                  {friends.map((friendship: any) => (
                     <div
                       key={friendship.id}
                       className="flex items-center space-x-4 rounded-lg border border-gray-200 p-4 hover:bg-gray-50"
@@ -397,7 +397,7 @@ export default function SocialPage() {
             <div className="p-6">
               {leaderboard && leaderboard.length > 0 ? (
                 <div className="space-y-4">
-                  {leaderboard.map((user, index) => (
+                  {leaderboard.map((user: any, index: number) => (
                     <div
                       key={user.id}
                       className={`flex items-center space-x-4 rounded-lg p-4 ${
@@ -439,7 +439,7 @@ export default function SocialPage() {
                   </h3>
                   <p className="text-gray-500">
                     Le classement sera disponible quand il y aura plus
-                    d'utilisateurs.
+                    d&apos;utilisateurs.
                   </p>
                 </div>
               )}

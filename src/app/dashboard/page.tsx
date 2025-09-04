@@ -93,7 +93,7 @@ export default function DashboardPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Niveau</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {level?.level || 1}
+                  {level?.level ?? 1}
                 </p>
               </div>
             </div>
@@ -109,7 +109,7 @@ export default function DashboardPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Points</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {stats?.totalPoints || 0}
+                  {stats?.totalPoints ?? 0}
                 </p>
               </div>
             </div>
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                   Streak Moyen
                 </p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {stats?.averageStreak || 0}
+                  {stats?.averageStreak ?? 0}
                 </p>
               </div>
             </div>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Habitudes</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {stats?.totalHabits || 0}
+                  {stats?.totalHabits ?? 0}
                 </p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function DashboardPage() {
               <div className="border-b border-gray-200 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-900">
-                    Habitudes d'aujourd'hui
+                    Habitudes d&apos;aujourd&apos;hui
                   </h2>
                   <Link
                     href="/habits"
@@ -179,7 +179,7 @@ export default function DashboardPage() {
                   </div>
                 ) : habits && habits.length > 0 ? (
                   <div className="space-y-4">
-                    {habits.map((habit) => (
+                    {habits.map((habit: any) => (
                       <div
                         key={habit.id}
                         className="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:bg-gray-50"
@@ -243,7 +243,7 @@ export default function DashboardPage() {
               <div className="p-6">
                 {dailyChallenges && dailyChallenges.length > 0 ? (
                   <div className="space-y-3">
-                    {dailyChallenges.map((challenge) => (
+                    {dailyChallenges.map((challenge: any) => (
                       <div
                         key={challenge.id}
                         className="flex items-center justify-between rounded-lg bg-gray-50 p-3"
@@ -278,7 +278,7 @@ export default function DashboardPage() {
               <div className="p-6">
                 {notifications && notifications.length > 0 ? (
                   <div className="space-y-3">
-                    {notifications.map((notification) => (
+                    {notifications.map((notification: any) => (
                       <div
                         key={notification.id}
                         className={`rounded-lg p-3 ${

@@ -141,7 +141,7 @@ export default function HabitDetailPage() {
 
                   {habit.hashtags.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
-                      {habit.hashtags.map((tag, index) => (
+                      {habit.hashtags.map((tag: string, index: number) => (
                         <span
                           key={index}
                           className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"
@@ -285,7 +285,7 @@ export default function HabitDetailPage() {
             <div className="p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Compléter l'habitude
+                  Compléter l&apos;habitude
                 </h2>
                 <button
                   onClick={() => setShowCompleteForm(false)}

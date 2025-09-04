@@ -194,7 +194,7 @@ export const habitRouter = createTRPCRouter({
 
       // Recalculer les points si la difficulté change
       if (updateData.difficulty) {
-        updateData.points = updateData.difficulty * 10;
+        (updateData as any).points = updateData.difficulty * 10;
       }
 
       const updatedHabit = await ctx.db.habit.update({

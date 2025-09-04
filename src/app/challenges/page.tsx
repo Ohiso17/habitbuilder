@@ -133,7 +133,7 @@ export default function ChallengesPage() {
                 { id: "all", label: "Tous les challenges", icon: "🌍" },
                 { id: "my", label: "Mes challenges", icon: "👤" },
                 { id: "joined", label: "Challenges rejoints", icon: "🤝" },
-              ].map((tab) => (
+              ].map((tab: { id: string; label: string; icon: string }) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -297,7 +297,7 @@ export default function ChallengesPage() {
           </div>
         ) : challenges && challenges.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {challenges.map((challenge) => (
+            {challenges.map((challenge: any) => (
               <div
                 key={challenge.id}
                 className="rounded-lg bg-white shadow transition-shadow hover:shadow-lg"

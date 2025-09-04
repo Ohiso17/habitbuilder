@@ -16,13 +16,13 @@ export default function HabitsPage() {
   const createHabit = api.habit.create.useMutation({
     onSuccess: () => {
       setShowCreateForm(false);
-      refetch();
+      void refetch();
     },
   });
 
   const deleteHabit = api.habit.delete.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
     },
   });
 
@@ -210,7 +210,7 @@ export default function HabitsPage() {
                         name="timeOfDay"
                         className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
                       >
-                        <option value="">N'importe quand</option>
+                        <option value="">N&apos;importe quand</option>
                         <option value="morning">Matin</option>
                         <option value="afternoon">Après-midi</option>
                         <option value="evening">Soir</option>
@@ -350,7 +350,7 @@ export default function HabitsPage() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {habit.hashtags.map((tag, index) => (
+                    {habit.hashtags.map((tag: string, index: number) => (
                       <span
                         key={index}
                         className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"

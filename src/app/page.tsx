@@ -20,8 +20,8 @@ export default async function Home() {
             Transformez vos bonnes résolutions en habitudes durables
           </p>
           <p className="mb-12 text-lg opacity-90">
-            L'application qui rend la construction d'habitudes addictive et
-            sociale
+            L&apos;application qui rend la construction d&apos;habitudes
+            addictive et sociale
           </p>
 
           <div className="mb-16 flex flex-col justify-center gap-4 sm:flex-row">

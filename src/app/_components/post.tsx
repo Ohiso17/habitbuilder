@@ -8,11 +8,11 @@ export function LatestPost() {
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
 
   const utils = api.useUtils();
-  const [content, setContent] = useState("");
+  const [name, setName] = useState("");
   const createPost = api.post.create.useMutation({
     onSuccess: async () => {
       await utils.post.invalidate();
-      setContent("");
+      setName("");
     },
   });
 
@@ -26,15 +26,15 @@ export function LatestPost() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          createPost.mutate({ content });
+          createPost.mutate({ name });
         }}
         className="flex flex-col gap-2"
       >
         <input
           type="text"
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          placeholder="Title"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="w-full rounded-full bg-white/10 px-4 py-2 text-white"
         />
         <button

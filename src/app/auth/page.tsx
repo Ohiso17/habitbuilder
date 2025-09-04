@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, signUp } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 
@@ -93,7 +93,7 @@ export default function AuthPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Nom d'utilisateur
+                  Nom d&apos;utilisateur
                 </label>
                 <input
                   type="text"
