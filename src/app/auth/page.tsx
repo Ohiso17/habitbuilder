@@ -175,27 +175,29 @@ export default function AuthPage() {
           </button>
         </div>
 
-        <div className="mt-8 text-center">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+        {process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET && (
+          <div className="mt-8 text-center">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-2 text-gray-500">
+                  Ou continuez avec
+                </span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-gray-500">
-                Ou continuez avec
-              </span>
-            </div>
-          </div>
 
-          <div className="mt-6">
-            <button
-              onClick={() => signIn("discord")}
-              className="w-full rounded-lg bg-[#5865F2] px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-[#4752C4]"
-            >
-              Discord
-            </button>
+            <div className="mt-6">
+              <button
+                onClick={() => signIn("discord")}
+                className="w-full rounded-lg bg-[#5865F2] px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-[#4752C4]"
+              >
+                Discord
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

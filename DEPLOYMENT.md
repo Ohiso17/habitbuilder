@@ -58,9 +58,14 @@ In your Vercel dashboard:
 ```
 DATABASE_URL=your_neon_connection_string_here
 AUTH_SECRET=your_random_secret_key_here
+NODE_ENV=production
+```
+
+**Optional (for Discord OAuth):**
+
+```
 AUTH_DISCORD_ID=your_discord_client_id
 AUTH_DISCORD_SECRET=your_discord_client_secret
-NODE_ENV=production
 ```
 
 ### Generate AUTH_SECRET:
