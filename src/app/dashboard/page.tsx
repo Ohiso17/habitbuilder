@@ -5,20 +5,39 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import Link from "next/link";
+import ClientOnly from "~/app/_components/ClientOnly";
+
+export const dynamic = "force-dynamic";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [selectedHabit, setSelectedHabit] = useState<string | null>(null);
 
+  // Only run queries when authenticated
+  const isAuthenticated = status === "authenticated";
+  
   const { data: habits, isLoading: habitsLoading } =
-    api.habit.getAll.useQuery();
-  const { data: stats } = api.user.getStats.useQuery();
-  const { data: level } = api.user.getLevel.useQuery();
-  const { data: dailyChallenges } = api.challenge.getDailyChallenges.useQuery();
-  const { data: notifications } = api.notification.getAll.useQuery({
-    limit: 5,
+    api.habit.getAll.useQuery(undefined, {
+      enabled: isAuthenticated,
+    });
+  const { data: stats } = api.user.getStats.useQuery(undefined, {
+    enabled: isAuthenticated,
   });
+  const { data: level } = api.user.getLevel.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: dailyChallenges } = api.challenge.getDailyChallenges.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: notifications } = api.notification.getAll.useQuery(
+    {
+      limit: 5,
+    },
+    {
+      enabled: isAuthenticated,
+    }
+  );
 
   const completeHabit = api.habit.complete.useMutation({
     onSuccess: () => {
@@ -50,7 +69,12 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <ClientOnly fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-purple-600"></div>
+      </div>
+    }>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="border-b bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -302,6 +326,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+    </ClientOnly>
   );
 }

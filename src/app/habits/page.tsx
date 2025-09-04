@@ -6,12 +6,16 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function HabitsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  const { data: habits, isLoading, refetch } = api.habit.getAll.useQuery();
+  const { data: habits, isLoading, refetch } = api.habit.getAll.useQuery(undefined, {
+    enabled: status === "authenticated",
+  });
 
   const createHabit = api.habit.create.useMutation({
     onSuccess: () => {

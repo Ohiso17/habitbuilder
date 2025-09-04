@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function SocialPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -15,12 +17,26 @@ export default function SocialPage() {
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [friendEmail, setFriendEmail] = useState("");
 
-  const { data: feed } = api.social.getFeed.useQuery({ limit: 20 });
-  const { data: friends } = api.social.getFriends.useQuery();
-  const { data: leaderboard } = api.social.getLeaderboard.useQuery({
-    limit: 50,
+  const { data: feed } = api.social.getFeed.useQuery(
+    { limit: 20 },
+    {
+      enabled: status === "authenticated",
+    }
+  );
+  const { data: friends } = api.social.getFriends.useQuery(undefined, {
+    enabled: status === "authenticated",
   });
-  const { data: pendingRequests } = api.social.getPendingRequests.useQuery();
+  const { data: leaderboard } = api.social.getLeaderboard.useQuery(
+    {
+      limit: 50,
+    },
+    {
+      enabled: status === "authenticated",
+    }
+  );
+  const { data: pendingRequests } = api.social.getPendingRequests.useQuery(undefined, {
+    enabled: status === "authenticated",
+  });
 
   const addFriend = api.social.addFriend.useMutation({
     onSuccess: () => {

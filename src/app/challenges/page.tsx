@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 export default function ChallengesPage() {
   const { data: session, status } = useSession();
@@ -12,10 +14,22 @@ export default function ChallengesPage() {
   const [activeTab, setActiveTab] = useState<"all" | "my" | "joined">("all");
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  const { data: challenges, isLoading } = api.challenge.getAll.useQuery({
-    type: activeTab,
-    limit: 20,
-  });
+  // Only run queries when authenticated and mounted
+  const [mounted, setMounted] = useState(false);
+  
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const { data: challenges, isLoading } = api.challenge.getAll.useQuery(
+    {
+      type: activeTab,
+      limit: 20,
+    },
+    {
+      enabled: status === "authenticated" && mounted,
+    }
+  );
 
   const createChallenge = api.challenge.create.useMutation({
     onSuccess: () => {
@@ -32,7 +46,7 @@ export default function ChallengesPage() {
     },
   });
 
-  if (status === "loading") {
+  if (status === "loading" || !mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-purple-600"></div>

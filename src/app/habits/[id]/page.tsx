@@ -7,6 +7,8 @@ import { api } from "~/trpc/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default function HabitDetailPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
