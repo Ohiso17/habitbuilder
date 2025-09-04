@@ -1,0 +1,449 @@
+// HabitBuilder - Application de Construction d'Habitudes
+// Schéma Prisma complet avec toutes les fonctionnalités
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== MODÈLES D'AUTHENTIFICATION =====
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+
+  // Profil étendu
+  username      String? @unique
+  bio           String?
+  level         Int     @default(1)
+  totalPoints   Int     @default(0)
+  currentStreak Int     @default(0)
+  longestStreak Int     @default(0)
+  theme         String  @default("light")
+  avatar        String?
+  title         String? // "Habit Master", "Consistency King", etc.
+
+  // Relations
+  accounts              Account[]
+  sessions              Session[]
+  habits                Habit[]
+  habitCompletions      HabitCompletion[]
+  badges                UserBadge[]
+  friends               Friendship[]           @relation("UserFriends")
+  friendOf              Friendship[]           @relation("FriendOf")
+  challenges            Challenge[]            @relation("ChallengeCreator")
+  challengeParticipants ChallengeParticipant[]
+  posts                 Post[]
+  comments              Comment[]
+  likes                 Like[]
+  notifications         Notification[]
+
+  // Codes d'invitation
+  invitationCode String? @unique
+  invitedBy      String?
+
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  DailyChallengeCompletion DailyChallengeCompletion[]
+
+  @@index([email])
+  @@index([username])
+  @@index([level])
+  @@index([totalPoints])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ===== MODÈLES D'HABITUDES =====
+
+model Habit {
+  id           String         @id @default(cuid())
+  title        String
+  description  String?
+  icon         String? // Emoji ou icône
+  color        String         @default("#3B82F6")
+  difficulty   Int            @default(1) // 1-5 étoiles
+  points       Int            @default(10) // Points par completion
+  frequency    HabitFrequency @default(DAILY)
+  timeOfDay    String? // "morning", "afternoon", "evening", "anytime"
+  reminderTime String? // "09:00", "18:00", etc.
+  isActive     Boolean        @default(true)
+  isPublic     Boolean        @default(false)
+  hashtags     String[] // Tags pour la découverte
+
+  // Statistiques
+  currentStreak    Int   @default(0)
+  longestStreak    Int   @default(0)
+  totalCompletions Int   @default(0)
+  successRate      Float @default(0) // Pourcentage de succès
+
+  // Relations
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions HabitCompletion[]
+  challenges  ChallengeHabit[]
+  posts       Post[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+  @@index([isPublic])
+  @@index([difficulty])
+}
+
+model HabitCompletion {
+  id      String @id @default(cuid())
+  habitId String
+  habit   Habit  @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime @default(now())
+  notes       String?
+  mood        Int? // 1-5 échelle d'humeur
+  energy      Int? // 1-5 échelle d'énergie
+  photo       String? // Photo de preuve
+
+  // Calculs de streak
+  isStreakContinuing Boolean @default(true)
+
+  @@unique([habitId, userId, completedAt])
+  @@index([habitId])
+  @@index([userId])
+  @@index([completedAt])
+}
+
+// ===== MODÈLES DE GAMIFICATION =====
+
+model Badge {
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  icon        String // Emoji ou icône
+  rarity      BadgeRarity   @default(COMMON)
+  category    BadgeCategory
+  points      Int           @default(0)
+  requirement Int           @default(1) // Nombre requis pour débloquer
+  isActive    Boolean       @default(true)
+
+  // Relations
+  users UserBadge[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([rarity])
+  @@index([category])
+}
+
+model UserBadge {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId String
+  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  earnedAt   DateTime @default(now())
+  isEquipped Boolean  @default(false)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+}
+
+// ===== MODÈLES SOCIAUX =====
+
+model Friendship {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
+  friendId String
+  friend   User   @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+
+  status    FriendshipStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
+}
+
+model Post {
+  id      String   @id @default(cuid())
+  content String
+  type    PostType @default(ACHIEVEMENT)
+  image   String?
+  habitId String?
+  habit   Habit?   @relation(fields: [habitId], references: [id], onDelete: SetNull)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  likes    Like[]
+  comments Comment[]
+
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([isPublic])
+}
+
+model Comment {
+  id      String @id @default(cuid())
+  content String
+  postId  String
+  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([userId])
+}
+
+model Like {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+// ===== MODÈLES DE CHALLENGES =====
+
+model Challenge {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  type        ChallengeType @default(STREAK)
+  goal        Int // Objectif à atteindre
+  duration    Int // Durée en jours
+  points      Int           @default(100) // Points de récompense
+  isActive    Boolean       @default(true)
+  isPublic    Boolean       @default(true)
+
+  // Relations
+  creatorId    String
+  creator      User                   @relation("ChallengeCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  participants ChallengeParticipant[]
+  habits       ChallengeHabit[]
+
+  startDate DateTime @default(now())
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([isPublic])
+  @@index([creatorId])
+}
+
+model ChallengeParticipant {
+  id          String    @id @default(cuid())
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  progress    Int       @default(0)
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+
+  joinedAt DateTime @default(now())
+
+  @@unique([challengeId, userId])
+  @@index([challengeId])
+  @@index([userId])
+}
+
+model ChallengeHabit {
+  id          String    @id @default(cuid())
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  habitId     String
+  habit       Habit     @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, habitId])
+  @@index([challengeId])
+  @@index([habitId])
+}
+
+// ===== MODÈLES DE NOTIFICATIONS =====
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    NotificationType
+  title   String
+  message String
+  data    Json? // Données supplémentaires
+
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+}
+
+// ===== MODÈLES DE DÉFIS QUOTIDIENS =====
+
+model DailyChallenge {
+  id          String             @id @default(cuid())
+  title       String
+  description String
+  type        DailyChallengeType
+  points      Int                @default(50)
+  isActive    Boolean            @default(true)
+
+  // Relations
+  completions DailyChallengeCompletion[]
+
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([date])
+}
+
+model DailyChallengeCompletion {
+  id          String         @id @default(cuid())
+  challengeId String
+  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime @default(now())
+
+  @@unique([challengeId, userId])
+  @@index([challengeId])
+  @@index([userId])
+}
+
+// ===== ENUMS =====
+
+enum HabitFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  CUSTOM
+}
+
+enum BadgeRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum BadgeCategory {
+  STREAK
+  POINTS
+  SOCIAL
+  TIME
+  CONSISTENCY
+  SPECIAL
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+enum PostType {
+  ACHIEVEMENT
+  MILESTONE
+  BADGE_EARNED
+  STREAK_BROKEN
+  CHALLENGE_COMPLETED
+  HABIT_COMPLETED
+  GENERAL
+}
+
+enum ChallengeType {
+  STREAK
+  POINTS
+  COMPLETION
+  TIME_BASED
+}
+
+enum NotificationType {
+  STREAK_REMINDER
+  BADGE_EARNED
+  FRIEND_REQUEST
+  CHALLENGE_INVITATION
+  DAILY_CHALLENGE
+  ACHIEVEMENT
+  SOCIAL_ACTIVITY
+  SYSTEM
+}
+
+enum DailyChallengeType {
+  TRIPLE_THREAT
+  WEEKEND_WARRIOR
+  EARLY_BIRD
+  SOCIAL_BUTTERFLY
+  COMEBACK_KID
+  CONSISTENCY_KING
+  POINT_MASTER
+  STREAK_SAVER
+}
